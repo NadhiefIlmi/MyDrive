@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep the document manager frontend as a single responsive dashboard route until backend features are requested, because this stage is explicitly UI-only.
