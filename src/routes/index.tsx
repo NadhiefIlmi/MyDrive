@@ -59,11 +59,15 @@ function Index() {
         <Button className="w-full"><Plus className="size-5" /> Tambah baru</Button>
         <nav className="mt-8 space-y-2" aria-label="Navigasi utama">
           {[
-            [Grid2X2, "Beranda", true], [Folder, "File saya", false], [Clock3, "Terbaru", false],
-            [Star, "Favorit", false], [Users, "Dibagikan", false], [Trash2, "Sampah", false],
-          ].map(([Icon, label, active]) => (
-            <button key={String(label)} className={`flex w-full items-center gap-3 rounded-ui border-2 px-3 py-2.5 text-left font-semibold ${active ? "border-ink bg-lilac shadow-brutal-sm" : "border-transparent hover:border-ink hover:bg-muted"}`}>
-              <Icon className="size-5" /> {String(label)}
+            { Icon: Grid2X2, label: "Beranda", active: true },
+            { Icon: Folder, label: "File saya", active: false },
+            { Icon: Clock3, label: "Terbaru", active: false },
+            { Icon: Star, label: "Favorit", active: false },
+            { Icon: Users, label: "Dibagikan", active: false },
+            { Icon: Trash2, label: "Sampah", active: false },
+          ].map(({ Icon, label, active }) => (
+            <button key={label} className={`flex w-full items-center gap-3 rounded-ui border-2 px-3 py-2.5 text-left font-semibold ${active ? "border-ink bg-lilac shadow-brutal-sm" : "border-transparent hover:border-ink hover:bg-muted"}`}>
+              <Icon className="size-5" /> {label}
             </button>
           ))}
         </nav>
