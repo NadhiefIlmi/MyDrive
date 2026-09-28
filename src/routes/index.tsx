@@ -114,7 +114,7 @@ function Index() {
   };
 
   const newNote = () => {
-    const note: Note = { id: Date.now(), title: "", body: "", color: noteColors[notes.length % noteColors.length], date: "Baru saja" };
+    const note: Note = { id: Date.now(), title: "", body: "", color: noteColors[notes.length % noteColors.length]!, date: "Baru saja" };
     selectSection("notes");
     setEditingNote(note);
   };
@@ -140,7 +140,7 @@ function Index() {
     const name = window.prompt("Nama folder baru", "Folder baru");
     setOpenMenu(null);
     if (!name?.trim()) return;
-    setFolders((c) => [...c, { name: name.trim(), count: 0, color: noteColors[c.length % noteColors.length], Icon: Folder }]);
+    setFolders((c) => [...c, { name: name.trim(), count: 0, color: noteColors[c.length % noteColors.length]!, Icon: Folder }]);
     flash(`Folder "${name.trim()}" dibuat`);
   };
 
