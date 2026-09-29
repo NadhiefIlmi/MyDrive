@@ -284,7 +284,7 @@ function Index() {
             <section className="border-b-2 border-ink pb-7">
               <p className="text-sm font-bold uppercase text-muted-foreground">{sectionCopy[activeSection].eyebrow}</p>
               <div className="mt-1 flex flex-wrap items-end justify-between gap-4"><div><h1 className="font-display text-4xl font-bold md:text-5xl">{sectionCopy[activeSection].title}</h1><p className="mt-2 font-medium text-muted-foreground">{sectionCopy[activeSection].description}</p></div>
-                {activeSection === "notes" ? <Button onClick={newNote}><Plus className="size-5" /> Catatan baru</Button> : activeSection !== "storage" && <span className="rounded-ui border-2 border-ink bg-sun px-4 py-2 font-bold shadow-brutal-sm">{headerCount} item</span>}
+                {activeSection === "notes" ? <Button onClick={newNote}><Plus className="size-5" /> Catatan baru</Button> : activeSection !== "storage" && activeSection !== "settings" && <span className="rounded-ui border-2 border-ink bg-sun px-4 py-2 font-bold shadow-brutal-sm">{headerCount} item</span>}
               </div>
             </section>
           )}
