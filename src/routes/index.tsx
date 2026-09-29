@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Bell, ChevronDown, Clock3, FileArchive, FileImage, FileSpreadsheet, FileText,
+  Check, ChevronDown, Clock3, FileArchive, FileImage, FileSpreadsheet, FileText,
   Folder, FolderHeart, FolderPlus, Grid2X2, HardDrive, LayoutList, LogOut, Menu, MoreHorizontal,
-  Plus, RotateCcw, Search, Settings, StickyNote, Star, Trash2, Upload, User, X,
+  Monitor, Moon, Plus, RotateCcw, Search, Settings, StickyNote, Star, Sun, Trash2, Upload, User, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import catWorkspaceAsset from "@/assets/cat-workspace.jpg.asset.json";
@@ -22,7 +22,8 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type Section = "home" | "files" | "recent" | "favorites" | "notes" | "trash" | "storage";
+type Section = "home" | "files" | "recent" | "favorites" | "notes" | "trash" | "storage" | "settings";
+type Theme = "light" | "dark" | "system";
 
 type DocumentItem = {
   id: number; name: string; type: string; size: string; date: string; color: string;
@@ -55,12 +56,6 @@ const initialNotes: Note[] = [
 
 const noteColors = ["bg-sun", "bg-lime", "bg-lilac", "bg-sky", "bg-coral"];
 
-const initialNotifs = [
-  { id: 1, text: "Nadia mengomentari Brand Guidelines.pdf", time: "5 menit lalu", read: false },
-  { id: 2, text: "Penyimpanan kamu sudah terpakai 42%", time: "1 jam lalu", read: false },
-  { id: 3, text: "Budget Q4.xlsx berhasil diperbarui", time: "Kemarin", read: true },
-];
-
 const navigation: { Icon: typeof Grid2X2; label: string; id: Section }[] = [
   { Icon: Grid2X2, label: "Beranda", id: "home" },
   { Icon: Folder, label: "File saya", id: "files" },
@@ -77,7 +72,20 @@ const sectionCopy: Record<Exclude<Section, "home">, { eyebrow: string; title: st
   notes: { eyebrow: "Tulis cepat", title: "Catatan", description: "Simpan ide, daftar tugas, dan pengingat pribadimu." },
   trash: { eyebrow: "Penyimpanan sementara", title: "Sampah", description: "File akan dihapus permanen setelah 30 hari." },
   storage: { eyebrow: "Kapasitas akun", title: "Penyimpanan", description: "Lihat apa saja yang memakai ruang penyimpananmu." },
+  settings: { eyebrow: "Preferensi akun", title: "Pengaturan", description: "Atur tampilan PurrDocs agar nyaman untukmu." },
 };
+
+const themeOptions: { id: Theme; label: string; description: string; Icon: typeof Sun }[] = [
+  { id: "light", label: "Light", description: "Tampilan terang setiap saat", Icon: Sun },
+  { id: "dark", label: "Dark", description: "Tampilan gelap setiap saat", Icon: Moon },
+  { id: "system", label: "System", description: "Ikuti pengaturan perangkat", Icon: Monitor },
+];
+
+function applyTheme(theme: Theme) {
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.classList.toggle("dark", theme === "dark" || (theme === "system" && prefersDark));
+  document.documentElement.style.colorScheme = theme === "system" ? "light dark" : theme;
+}
 
 const storageBreakdown = [
   { label: "Dokumen", size: "1.4 GB", pct: 14, color: "bg-lilac", Icon: FileText },
@@ -100,14 +108,35 @@ function Index() {
   const [files, setFiles] = useState(initialFiles);
   const [folders, setFolders] = useState(initialFolders);
   const [notes, setNotes] = useState(initialNotes);
-  const [notifs, setNotifs] = useState(initialNotifs);
-  const [openMenu, setOpenMenu] = useState<null | "add" | "notif" | "profile">(null);
+  const [theme, setTheme] = useState<Theme>("system");
+  const [openMenu, setOpenMenu] = useState<null | "add" | "theme" | "profile">(null);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [toast, setToast] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
 
   const flash = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 2500); };
-  const toggleMenu = (m: "add" | "notif" | "profile") => setOpenMenu((c) => (c === m ? null : m));
+  const toggleMenu = (m: "add" | "theme" | "profile") => setOpenMenu((c) => (c === m ? null : m));
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("purrdocs-theme");
+    const initialTheme: Theme = saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
+    setTheme(initialTheme);
+    applyTheme(initialTheme);
+  }, []);
+
+  useEffect(() => {
+    if (theme !== "system") return;
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const sync = () => applyTheme("system");
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, [theme]);
+
+  const chooseTheme = (nextTheme: Theme) => {
+    setTheme(nextTheme);
+    window.localStorage.setItem("purrdocs-theme", nextTheme);
+    applyTheme(nextTheme);
+  };
 
   const selectSection = (section: Section) => {
     setActiveSection(section); setQuery(""); setSidebarOpen(false); setOpenMenu(null);
@@ -156,7 +185,6 @@ function Index() {
   }, [activeSection, files, query]);
 
   const visibleNotes = notes.filter((n) => `${n.title} ${n.body}`.toLowerCase().includes(query.toLowerCase()));
-  const unread = notifs.filter((n) => !n.read).length;
   const headerCount = activeSection === "notes" ? visibleNotes.length : visibleFiles.length;
 
   return (
