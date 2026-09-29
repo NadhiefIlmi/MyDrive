@@ -227,16 +227,16 @@ function Index() {
             <Search className="size-5 shrink-0" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={activeSection === "notes" ? "Cari catatan..." : "Cari file atau folder..."} className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground" />
           </label>
           <div className="relative z-30">
-            <Button variant="icon" aria-label="Notifikasi" onClick={() => toggleMenu("notif")}><Bell className="size-5" /></Button>
-            {unread > 0 && <span className="pointer-events-none absolute -right-1 -top-1 grid size-5 place-items-center rounded-full border-2 border-ink bg-coral text-[10px] font-bold">{unread}</span>}
-            {openMenu === "notif" && (
-              <div className="absolute right-0 top-full mt-3 w-80 max-w-[85vw] rounded-ui border-2 border-ink bg-card shadow-brutal">
-                <div className="flex items-center justify-between border-b-2 border-ink p-3"><p className="font-display font-bold">Notifikasi</p><button className="text-xs font-bold underline" onClick={() => setNotifs((c) => c.map((n) => ({ ...n, read: true })))}>Tandai semua dibaca</button></div>
-                {notifs.length === 0 ? <p className="p-4 text-sm text-muted-foreground">Tidak ada notifikasi.</p> : notifs.map((n) => (
-                  <div key={n.id} className={`flex gap-3 border-b-2 border-ink p-3 last:border-b-0 ${n.read ? "" : "bg-sun/40"}`}>
-                    <button className="min-w-0 flex-1 text-left" onClick={() => setNotifs((c) => c.map((x) => (x.id === n.id ? { ...x, read: true } : x)))}><p className="text-sm font-semibold">{n.text}</p><p className="text-xs text-muted-foreground">{n.time}</p></button>
-                    <button aria-label="Hapus notifikasi" onClick={() => setNotifs((c) => c.filter((x) => x.id !== n.id))}><X className="size-4" /></button>
-                  </div>
+            <Button variant="icon" aria-label="Pilih tema" title="Pilih tema" onClick={() => toggleMenu("theme")}>
+              {theme === "light" ? <Sun className="size-5" /> : theme === "dark" ? <Moon className="size-5" /> : <Monitor className="size-5" />}
+            </Button>
+            {openMenu === "theme" && (
+              <div className="absolute right-0 top-full mt-3 w-72 max-w-[85vw] rounded-ui border-2 border-ink bg-card p-2 shadow-brutal">
+                <p className="border-b-2 border-ink px-3 pb-2 font-display font-bold">Dark Mode</p>
+                {themeOptions.map(({ id, label, description, Icon }) => (
+                  <Button key={id} variant="ghost" onClick={() => { chooseTheme(id); setOpenMenu(null); }} className="mt-1 h-auto w-full justify-start px-3 py-2 text-left">
+                    <Icon className="size-5 shrink-0" /><span className="min-w-0 flex-1"><span className="block font-bold">{label}</span><span className="block text-xs font-medium text-muted-foreground">{description}</span></span>{theme === id && <Check className="size-5 shrink-0" />}
+                  </Button>
                 ))}
               </div>
             )}
@@ -247,7 +247,7 @@ function Index() {
               <div className="absolute right-0 top-full mt-3 w-60 rounded-ui border-2 border-ink bg-card p-2 shadow-brutal">
                 <div className="border-b-2 border-ink px-3 pb-2"><p className="font-bold">Fasichul Ilmi</p><p className="text-xs text-muted-foreground">fasichul@email.com</p></div>
                 <MenuItem Icon={User} label="Profil saya" onClick={() => { setOpenMenu(null); flash("Halaman profil segera hadir"); }} />
-                <MenuItem Icon={Settings} label="Pengaturan" onClick={() => { setOpenMenu(null); flash("Pengaturan segera hadir"); }} />
+                <MenuItem Icon={Settings} label="Pengaturan" onClick={() => selectSection("settings")} />
                 <MenuItem Icon={HardDrive} label="Penyimpanan" onClick={() => selectSection("storage")} />
                 <Link to="/login" className="flex w-full items-center gap-3 rounded-ui px-3 py-2 text-sm font-semibold text-left hover:bg-coral"><LogOut className="size-4" /> Keluar</Link>
               </div>
@@ -289,7 +289,22 @@ function Index() {
             </section>
           )}
 
-          {activeSection === "storage" ? (
+          {activeSection === "settings" ? (
+            <section className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+              <div className="rounded-ui border-2 border-ink bg-card p-6 shadow-brutal">
+                <div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-ui border-2 border-ink bg-lilac"><Sun className="size-6" /></span><div><h2 className="font-display text-2xl font-bold">Tampilan</h2><p className="text-sm font-medium text-muted-foreground">Pilih tema untuk seluruh aplikasi.</p></div></div>
+                <div className="mt-6 grid gap-3 md:grid-cols-3">
+                  {themeOptions.map(({ id, label, description, Icon }) => (
+                    <Button key={id} variant="ghost" onClick={() => chooseTheme(id)} aria-pressed={theme === id} className={`relative h-auto min-h-36 flex-col items-start justify-between border-ink p-4 text-left ${theme === id ? "bg-lilac shadow-brutal-sm hover:bg-lilac" : "bg-background hover:border-ink"}`}>
+                      <div className="flex w-full items-center justify-between"><Icon className="size-7" />{theme === id && <span className="grid size-7 place-items-center rounded-full border-2 border-ink bg-lime"><Check className="size-4" /></span>}</div>
+                      <div><span className="block font-display text-xl font-bold">{label}</span><span className="mt-1 block text-xs font-medium text-muted-foreground">{description}</span></div>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-ui border-2 border-ink bg-sun p-5 shadow-brutal-sm"><Monitor className="size-7" /><p className="mt-3 font-display text-xl font-bold">Tema aktif: {themeOptions.find((option) => option.id === theme)?.label}</p><p className="mt-1 text-sm font-medium">Pilihan ini tersimpan dan digunakan lagi saat kamu membuka PurrDocs.</p></div>
+            </section>
+          ) : activeSection === "storage" ? (
             <section className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
               <div className="rounded-ui border-2 border-ink bg-card p-6 shadow-brutal">
                 <p className="font-display text-5xl font-bold">4.2 GB</p><p className="font-semibold text-muted-foreground">terpakai dari 10 GB</p>
