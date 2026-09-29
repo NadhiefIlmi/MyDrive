@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Keep the document manager frontend as a single responsive dashboard route until backend features are requested, because this stage is explicitly UI-only.
+- Apply the persisted `purrdocs-theme` preference through the root HTML class so every route and overlay shares one theme without duplicating state.
